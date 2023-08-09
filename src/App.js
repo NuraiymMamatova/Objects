@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-import Button from "./components/Button";
+import Button from "./components/UI/Button";
 import { v4 as uuidv4 } from "uuid";
+import ObjectItem from "./components/UI/ObjectItem";
+import ObjectsList from "./components/ObjectsList";
+import { styled } from "styled-components";
 
 function App() {
   const [objects, setObjects] = useState([]);
@@ -10,28 +12,25 @@ function App() {
   useEffect(() => {
     if (!create) return clearInterval(intervalId);
     if (create) {
+      const getBg = () => {
+        const randomColor = Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+        return "#" + randomColor;
+      };
       setIntervalId(
         setInterval(() => {
           const id = uuidv4();
           setObjects((prevObjects) => [
             ...prevObjects,
-            { id, title: `This is a ${id}` },
-            { id: id + 1, title: `This is a ${id + 1}` },
-            { id: id + 2, title: `This is a ${id + 2}` },
-            { id: id + 3, title: `This is a ${id + 3}` },
-            { id: id + 4, title: `This is a ${id + 4}` },
+            { id, bgColor: getBg() },
+            { id: id + 1, bgColor: getBg() },
+            { id: id + 2, bgColor: getBg() },
+            { id: id + 3, bgColor: getBg() },
+            { id: id + 4, bgColor: getBg() },
           ]);
         }, 1000)
       );
     }
-    return () => {
-      console.log(create);
-    };
   }, [create]);
-
-  const toggleCreate = () => {
-    setCreate((prevState) => !prevState);
-  };
 
   const deleteObject = (id) => {
     const filteredObjects = objects.filter((object) => object.id !== id);
@@ -39,19 +38,33 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Button onClick={toggleCreate}>Start</Button>
-      <Button onClick={toggleCreate}>Stop</Button>
-      <ol>
+    <StyledApp>
+      <Actions>
+        <Button onClick={() => setCreate(true)}>Start</Button>
+        <Button onClick={() => setCreate(false)}>Stop</Button>
+      </Actions>
+      <ObjectsList>
         {objects.map((object) => (
-          <li key={object.id}>
-            <p>{object.title}</p>
+          <ObjectItem bgColor={object.bgColor} key={object.id}>
             <Button onClick={() => deleteObject(object.id)}>Delete</Button>
-          </li>
+          </ObjectItem>
         ))}
-      </ol>
-    </div>
+      </ObjectsList>
+    </StyledApp>
   );
 }
 
 export default App;
+
+const StyledApp = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  padding: 20px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 20px;
+`;
